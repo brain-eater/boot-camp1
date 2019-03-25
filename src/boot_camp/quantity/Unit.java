@@ -1,21 +1,44 @@
 package boot_camp.quantity;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 
-public class Unit {
+abstract class Unit {
 
-    public static final Unit FEET = new Unit(new BigDecimal("304.8"));
-    public static final Unit INCH = new Unit(new BigDecimal("25.4"));
-    public static final Unit CENTIMETER = new Unit(new BigDecimal("10.0"));
-    public static final Unit MILLIMETER = new Unit(new BigDecimal("1.0"));
+    static final Unit FAHRENHEIT = new Unit(new BigDecimal("1.0"), new BigDecimal("0"), UnitType.TEMPERATURE);
+    static final Unit CELSIUS = new Unit(new BigDecimal("1.8"), new BigDecimal("32"), UnitType.TEMPERATURE);
 
-    private final BigDecimal ratioToMM;
+    private final BigDecimal ratio;
+    private final UnitType type;
+    private static final HashMap<UnitType, Unit> standardUnits;
 
-    private Unit(BigDecimal ratioToMM) {
-        this.ratioToMM = ratioToMM;
+    static {
+        standardUnits = new HashMap<>();
+        standardUnits.put(UnitType.LENGTH, RatioConvertedUnit.INCH);
+        standardUnits.put(UnitType.VOLUME, RatioConvertedUnit.LITER);
+        standardUnits.put(UnitType.TEMPERATURE, FAHRENHEIT);
     }
 
-    public BigDecimal toMM(int count) {
-        return this.ratioToMM.multiply(new BigDecimal(count));
+    Unit(BigDecimal ratio, UnitType type) {
+        this.ratio = ratio;
+        this.type = type;
+    }
+
+    Boolean isSameType(Unit unit) {
+        return this.type == unit.type;
+    }
+
+    abstract BigDecimal toBaseValue(BigDecimal value);
+//    {
+//        return value.multiply(this.ratio).add(this.scale);
+//    }
+
+    abstract BigDecimal convertTo(Unit unit, BigDecimal value);
+//    {
+//        return this.ratio.divide(unit.ratio, 2, RoundingMode.HALF_EVEN).multiply(value).add(this.scale);
+//    }
+
+    Unit getStandardUnit() {
+        return standardUnits.get(this.type);
     }
 }

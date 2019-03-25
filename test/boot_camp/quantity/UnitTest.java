@@ -16,6 +16,14 @@ class UnitTest {
 
     @Test
     void shouldConvertToMM() {
-        assertEquals(new BigDecimal("304.8"), Unit.FEET.toMM(1));
+        assertEquals(new BigDecimal("300.0"), Unit.FEET.toBaseValue(new BigDecimal("1")));
+    }
+
+    @Test
+    void shouldConvertFahrenheitToCelsius() {
+        BigDecimal actual = Unit.CELSIUS.convertTo(Unit.FAHRENHEIT, new BigDecimal("1"));
+        BigDecimal expected = new BigDecimal("33.80");
+
+        assertEquals(expected, actual);
     }
 }
