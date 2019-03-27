@@ -48,10 +48,14 @@ class ParkingLotTest {
         parkingLot.park(car);
         parkingLot.unPark(car);
         assertTrue(testAttendant.isNotifiedFree);
-
-
     }
 
+    @Test
+    void shouldNotUnparkIfCarIsNotThereInLot() {
+        ParkingLot parkingLot = new ParkingLot(1);
+        parkingLot.park(new Car());
+        assertFalse(parkingLot.unPark(new Car()));
+    }
 }
 
 class TestAttendant extends ParkingLotAttendant {

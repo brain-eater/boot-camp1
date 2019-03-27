@@ -31,8 +31,8 @@ class ParkingLot {
     }
 
     boolean unPark(Car car) {
-        if(!parkedCars.contains(car)) return false;
-        if(isFull()) attendant.notifyLotFree(this);
+        if (!parkedCars.contains(car)) return false;
+        if (isFull()) attendant.notifyLotFree(this);
         parkedCars.remove(car);
         return true;
     }
