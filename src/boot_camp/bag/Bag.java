@@ -1,48 +1,53 @@
 package boot_camp.bag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class Bag {
     private Map<Ball, Integer> ballsCount;
-    private Map<Ball, Validator> ballValidators;
-
+    private Map<Ball,Validator> ballValidators;
+    private List<Validator> defaultValidators;
 
     Bag() {
         this.ballsCount = new HashMap<>();
-        this.ballsCount.put(Ball.RED, 0);
-        this.ballsCount.put(Ball.BLUE, 0);
-        this.ballsCount.put(Ball.GREEN, 0);
-        this.ballsCount.put(Ball.YELLOW, 0);
-
         this.ballValidators = new HashMap<>();
-        this.ballValidators.put(Ball.RED, redBallValidator);
-        this.ballValidators.put(Ball.GREEN, greenBallValidator);
+        this.defaultValidators = new ArrayList<>();
     }
 
     boolean addBall(Ball ball) {
         Validator validator = this.ballValidators.get(ball);
-        if (validator.validate()) {
-            Integer newCount = this.ballsCount.get(ball) + 1;
+        for (Validator defaultValidator : defaultValidators) {
+            if (!defaultValidator.validate(this)){
+                return false;
+            }
+        }
+        if (validator.validate(this)) {
+            Integer newCount = this.ballsCount.getOrDefault(ball, 0) + 1;
             this.ballsCount.put(ball, newCount);
             return true;
         }
         return false;
     }
 
-    private Validator redBallValidator = () -> {
-        Integer greenBalls = this.ballsCount.get(Ball.GREEN);
-        Integer redBalls = this.ballsCount.get(Ball.RED);
-        return redBalls + 1 <= greenBalls * 2;
-    };
+    void addValidator(Ball ball, Validator validator){
+        this.ballValidators.put(ball, validator);
+    }
 
+    void addValidator(Validator validator){
+        this.defaultValidators.add(validator);
+    }
 
-    private Validator greenBallValidator = () -> {
-        Integer greenBalls = this.ballsCount.get(Ball.GREEN);
-        return greenBalls < 3;
-    };
+    Integer getCountOf(Ball ball) {
+        return ballsCount.getOrDefault(ball, 0);
+    }
 
-    private interface Validator {
-        boolean validate();
+    Integer getTotalCount() {
+        Integer totalCount = 0;
+        for (Integer count : this.ballsCount.values()) {
+            totalCount += count;
+        }
+        return totalCount;
     }
 }
