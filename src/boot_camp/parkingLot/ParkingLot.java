@@ -1,39 +1,64 @@
 package boot_camp.parkingLot;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 class ParkingLot {
-    private List<Car> parkedCars;
+    private Map<Token, Car> parkedCars;
     private int size;
     private ParkingLotAttendant attendant;
+    private DisplayManager displayManager;
+    private Integer id;
 
-    ParkingLot(int size) {
+    ParkingLot(int id, int size) {
+        this.id = id;
         this.size = size;
-        this.parkedCars = new ArrayList<>();
+        this.parkedCars = new HashMap<>();
     }
 
-    boolean park(Car car) {
-        if (isFull()) return false;
-        parkedCars.add(car);
+    Token park(Car car) {
+        if (isFull()) return null;
+        Token token = new Token(parkedCars.size());
+        parkedCars.put(token, car);
         if (isFull() && attendant != null) {
-            attendant.notifyLotFull(this);
+            this.attendant.notifyLotFull(this);
         }
-        return true;
+        if (this.displayManager != null) this.displayManager.notifyCarParked(this.id);
+        if (isLessThanTwentyPercent()) this.attendant.notifyEightyPercentLotFree(this);
+        return token;
+    }
+
+    private boolean isLessThanTwentyPercent() {
+        int filled = this.parkedCars.size();
+        int total = this.size;
+        return (float) filled / total <= 0.2;
     }
 
     void registerAttendant(ParkingLotAttendant attendant) {
         this.attendant = attendant;
     }
 
+    void registerDisplayManager(DisplayManager displayManager) {
+        this.displayManager = displayManager;
+    }
+
     boolean isFull() {
         return size == parkedCars.size();
     }
 
-    boolean unPark(Car car) {
-        if (!parkedCars.contains(car)) return false;
-        if (isFull()) attendant.notifyLotFree(this);
-        parkedCars.remove(car);
+    boolean unPark(Token token) {
+        if (!parkedCars.containsKey(token)) return false;
+        if (isFull() && this.attendant != null) attendant.notifyLotFree(this);
+        parkedCars.remove(token);
+        if (this.displayManager != null) this.displayManager.notifyCarUnParked(this.id);
         return true;
+    }
+
+    int getParkedCarsCount() {
+        return this.parkedCars.size();
+    }
+
+    Integer getId() {
+        return this.id;
     }
 }
